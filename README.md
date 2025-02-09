@@ -4,7 +4,7 @@
 * Make a short docs on usage of the library with Doxygen
 
 ## License
-Please see [LICENSE.md](LICENSE.md).
+Please see [LICENSE](LICENSE).
 
 ## Third Party Libraries
 This project uses the following third-party libraries:
