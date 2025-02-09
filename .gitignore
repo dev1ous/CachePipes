@@ -30,3 +30,15 @@
 *.exe
 *.out
 *.app
+
+# Build files
+build/*
+
+#MacOS
+.DS_Store
+
+#VS Code
+.vscode/*
+
+#Testing datas/resources i have no right to put public
+resources/*
