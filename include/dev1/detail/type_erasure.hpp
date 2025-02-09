@@ -33,7 +33,7 @@ namespace dev1 {
             ~model() = default;
 
             [[nodiscard]] operator T&() & noexcept { return _data; }
-            [[nodiscard]] operator const T&() const& noexcept{ return _data; }
+            [[nodiscard]] operator T const&() const& noexcept { return _data; }
 
         private:
             T _data;
