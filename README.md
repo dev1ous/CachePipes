@@ -5,6 +5,7 @@
 
 ## Notice
 Except from 1 concepts construct in "concept.hpp" and the "trick" to double forward declare on each operator| in "algo.hpp", all the code has been generated from and by MY MIND ( not My AI 😉 ), the HARD and long test and debugging with type deduction and so on has also been made by me and my sweat, except from few errors at the beginning of the projet where AI has been useful, ngl.
+
 So i will like any readers or users to take it into considerations when potentially giving my code to some OpenAI or others... ( not blaiming at all if you do, i also understand thats its quite useful from a learning knowledge perspective )
 
 ( for full transparency, when i did used the AI, it was Claude Sonnet 3.5 by Anthropic ! )
