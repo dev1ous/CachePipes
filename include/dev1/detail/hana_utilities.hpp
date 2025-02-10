@@ -7,6 +7,8 @@
 // Licensed under the Boost Software License 1.0
 // See THIRD_PARTY_LICENSES.md for full license text
 
+// tuple_element for hana::tuple has been taken from an answer here : https://github.com/boostorg/hana/issues/317
+
 #ifndef HANA_UTILITIES_HPP
 #define HANA_UTILITIES_HPP
 
