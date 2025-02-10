@@ -8,7 +8,7 @@ Except from 1 concepts construct in "concept.hpp" and the "trick" to double forw
 
 So i will like any readers or users to take it into considerations when potentially giving my code to some OpenAI or others... ( not blaiming at all if you do, i also understand thats its quite useful from a learning knowledge perspective )
 
-( for full transparency, when i did used the AI, it was Claude Sonnet 3.5 by Anthropic ! )
+( for full transparency, when i did used AI, it was Claude Sonnet 3.5 by Anthropic ! )
 
 I feel, during those times, this was worth beiing mentionned.
 
