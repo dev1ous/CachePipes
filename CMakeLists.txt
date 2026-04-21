@@ -5,6 +5,8 @@ cmake_policy(SET CMP0069 NEW)
 cmake_policy(SET CMP0048 NEW)
 project(CachePipes LANGUAGES CXX)
 
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+
 if(NOT (DEFINED ENV{CPM_SOURCE_CACHE} OR DEFINED CPM_SOURCE_CACHE))
   set(CPM_SOURCE_CACHE ${CMAKE_CURRENT_BINARY_DIR}/cmake CACHE PATH "Location of CPM cache")
 endif()
@@ -26,7 +28,7 @@ message(STATUS "CPM included")
 CPMAddPackage(
     NAME rapidhash
     GITHUB_REPOSITORY Nicoshev/rapidhash
-    GIT_TAG rapidhash_v1.0
+    GIT_TAG rapidhash_v3
 )
 
 if(rapidhash_ADDED)
@@ -34,43 +36,12 @@ if(rapidhash_ADDED)
     target_include_directories(rapidhash INTERFACE ${rapidhash_SOURCE_DIR})
 endif()
 
-CPMAddPackage(
-    NAME Swl.Variant
-    GITHUB_REPOSITORY adihodos/swl-variant
-    GIT_TAG main
+ CPMAddPackage(
+    NAME Boost.Unordered
+    GITHUB_REPOSITORY MikePopoloski/boost_unordered
+    GIT_TAG v1.88.0
     OPTIONS
-        "CMAKE_PROJECT_NAME not_swl_variant"
-)
-
-find_package(Boost 1.87.0 COMPONENTS hana unordered QUIET)
-
-if(NOT Boost_FOUND)
-    CPMAddPackage(
-        NAME Boost.Unordered
-        GITHUB_REPOSITORY MikePopoloski/boost_unordered
-        GIT_TAG v1.87.1
-        OPTIONS
-            "BUS_SYSTEM_INCLUDE ON"
-    )
-
-    CPMAddPackage(
-        NAME Boost.Hana
-        GITHUB_REPOSITORY boostorg/hana
-        GIT_TAG v1.7.0
-        OPTIONS
-            "BOOST_HANA_ENABLE_STRING_UDL OFF"
-            "BOOST_HANA_ENABLE_EXCEPTIONS OFF"
-    )
-endif()
-
-target_compile_options(hana INTERFACE 
-    $<$<CXX_COMPILER_ID:Clang>:
-        -Wno-unused-value
-    >
-)
-set_target_properties(hana PROPERTIES
-    INTERFACE_SYSTEM_INCLUDE_DIRECTORIES 
-    $<TARGET_PROPERTY:hana,INTERFACE_INCLUDE_DIRECTORIES>
+        "BUS_SYSTEM_INCLUDE ON"
 )
 
 CPMAddPackage(
@@ -93,14 +64,24 @@ CPMAddPackage(
         >
 )
 
-add_executable(${PROJECT_NAME} src/main.cpp)
-target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_20)
+add_executable(${PROJECT_NAME})
+target_compile_features(${PROJECT_NAME} 
+    PUBLIC 
+        cxx_std_23
+)
 
-target_compile_options(${PROJECT_NAME} PRIVATE 
-    $<$<CXX_COMPILER_ID:Clang>:
-        -Wall
-        -Wextra
-    >
+target_compile_options(${PROJECT_NAME} 
+    PRIVATE 
+        $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>>:
+            -Wall
+            -Wextra
+        >
+)
+
+target_sources(${PROJECT_NAME} 
+    PRIVATE 
+        src/main.cpp
+        src/map.cpp
 )
 
 target_include_directories(${PROJECT_NAME}
@@ -110,26 +91,32 @@ target_include_directories(${PROJECT_NAME}
         ${CMAKE_SOURCE_DIR}/include/dev1
 )
 
+target_precompile_headers(${PROJECT_NAME} 
+    PRIVATE 
+        "${CMAKE_SOURCE_DIR}/include/dev1/detail/pch.hpp"
+)
+
 target_link_libraries(${PROJECT_NAME} 
     PRIVATE
-        hana
         boost_unordered
-        swl-variant
         rapidhash
         sfml-graphics 
         sfml-audio
 )
 
-target_compile_definitions(${PROJECT_NAME} PRIVATE
-    EXECUTABLE_DIR="$<TARGET_FILE_DIR:${PROJECT_NAME}>"
+ target_compile_definitions(${PROJECT_NAME}
+     PRIVATE
+         EXECUTABLE_DIR="$<TARGET_FILE_DIR:${PROJECT_NAME}>"
 )
 
-add_custom_command(
-    TARGET ${PROJECT_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-    ${CMAKE_SOURCE_DIR}/resources
-    ${CMAKE_BINARY_DIR}/resources
-)
+# add_custom_command(
+#     TARGET ${PROJECT_NAME} POST_BUILD
+#     COMMAND ${CMAKE_COMMAND} -E copy_directory
+#     ${CMAKE_SOURCE_DIR}/resources
+#     ${CMAKE_BINARY_DIR}/resources
+# )
+
+file(COPY ${CMAKE_SOURCE_DIR}/resources DESTINATION ${CMAKE_BINARY_DIR})
 
 add_custom_command(
     TARGET ${PROJECT_NAME} POST_BUILD

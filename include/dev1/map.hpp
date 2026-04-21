@@ -11,26 +11,26 @@
 // Licensed under BSD 2-Clause License
 // See THIRD_PARTY_LICENSES.md for full license text
 
-#ifndef PROTOTYPE_MAP_HPP
-#define PROTOTYPE_MAP_HPP
+#ifndef MAP_HPP
+#define MAP_HPP
 
-#include <rapidhash.h>
-#include <boost/unordered/unordered_node_map.hpp>
+#include <type_traits>
 
-#include "type_erasure.hpp"
+#include <boost/unordered/unordered_flat_map.hpp>
 
 namespace dev1::detail {
     struct ihash {
         using is_transparent = void;
 
-        uint64_t operator()(char const* str) const noexcept {
-            return rapidhash(str, strlen(str));
-        }
-        uint64_t operator()(std::string_view str) const noexcept {
-            return rapidhash(str.data(), str.size());
-        }
-        uint64_t operator()(std::string const& str) const noexcept {
-            return rapidhash(str.data(), str.size());
+        uint64_t operator()(char const* str) const noexcept;
+        uint64_t operator()(std::string_view str) const noexcept;
+
+        static uint64_t hash_bytes(void const* data, std::size_t len) noexcept;
+
+        template<typename T>
+        requires std::is_trivially_copyable_v<T>
+        uint64_t operator()(T const& val) const noexcept {
+            return hash_bytes(&val, sizeof(T));
         }
     };
 }
@@ -45,14 +45,15 @@ namespace boost::unordered {
 namespace dev1 {
     namespace detail {
         namespace unordered = boost::unordered;
-
-        class unordered_map : public unordered::unordered_node_map<
-            std::string, 
-            std::weak_ptr<concept_t>, 
-            detail::ihash, 
-            std::equal_to<>
-        > {};
     }
+
+    template<typename Key, typename Value>
+    using unordered_map = detail::unordered::unordered_flat_map<
+        Key, 
+        Value, 
+        detail::ihash, 
+        std::equal_to<>
+    >;
 }
 
 #endif

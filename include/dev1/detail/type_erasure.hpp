@@ -17,12 +17,12 @@ namespace dev1 {
         struct model final : concept_t {
             model() = default;
     
-            explicit model(T&& data) : _data(std::forward<T>(data)) {}
+            explicit model(T&& data) : _data{std::forward<T>(data)} {}
             
-            explicit model(T const& data) : _data(data) {}
+            explicit model(T const& data) : _data{data} {}
 
             template<typename... Args>
-            explicit model(Args&&... args) : _data(std::forward<Args>(args)...) {}
+            explicit model(Args&&... args) : _data{std::forward<Args>(args)...} {}
 
             model(model const& other) = default;
             model& operator=(model const& other) = default;
