@@ -18,10 +18,10 @@
 #include <utility>
 #include <stdexcept>
 
-#include <swl/variant.hpp>
 #include <boost/hana/functional/partial.hpp>
 
 #include "tags.hpp"
+#include "variant_utilities.hpp"
 
 namespace dev1 {
     namespace detail {
@@ -48,9 +48,9 @@ namespace dev1 {
             auto operator()([[maybe_unused]] safety, Variant const& variant) const 
             { 
                 if (variant.index() == 0) {
-                    return swl::unsafe_get<0>(variant);
+                    return get_unbound<0>(variant);
                 }
-                auto const& tupleRef = swl::unsafe_get<1>(variant);
+                auto const& tupleRef = get_unbound<1>(variant);
                 return this->operator()(full{}, tupleRef);
             }
         };

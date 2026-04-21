@@ -41,7 +41,7 @@ namespace dev1 {
 
             template<typename U = T>
             static constexpr bool is_valid_extensions = requires(U t) {
-                { get_size<U>() } -> std::convertible_to<std::size_t>;
+                { get_size<U>() } -> std::convertible_to<size_t>;
                 requires impl::ValidExtensions<traits<U>, get_size<U>()>;
             };
 

@@ -15,11 +15,11 @@
 #ifndef GET_HPP
 #define GET_HPP
 
-#include <swl/variant.hpp>
 #include <boost/hana/functional/partial.hpp>
 
 #include "tags.hpp"
 #include "type_erasure.hpp"
+#include "path_construct.hpp"
 
 namespace dev1 {
     namespace detail {

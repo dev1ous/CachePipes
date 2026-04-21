@@ -4,10 +4,12 @@
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
+#include <SFML/Window.hpp>
 
 #include "dev1/algos.hpp"
 #include "dev1/cache.hpp"
 #include "dev1/traits.hpp"
+#include "dev1/make.hpp"
 
 template<>
 struct dev1::traits<sf::Font> {
@@ -50,13 +52,15 @@ struct dev1::traits<sf::SoundBuffer> {
 };
 
 int main() {
+    sf::RenderWindow window(sf::VideoMode({800, 600}), "My window");
+
     dev1::Cache cache;
 
     auto resource = cache 
         | dev1::produce([] { 
-            return dev1::make<sf::Font>();
+            return dev1::make<sf::Texture>();
         })
-        | dev1::get(dev1::safety{}, "Linebeam")
+        | dev1::get(dev1::safety{}, "Logo")
         | dev1::solve_filepath("resources")
         | dev1::load_resource()
         | dev1::insert();
@@ -65,9 +69,9 @@ int main() {
     
     auto resource_2 = cache 
         | dev1::produce([] { 
-            return dev1::make<sf::Font>();
+            return dev1::make<sf::Texture>();
         })
-        | dev1::get(dev1::perf{}, "Linebeam");
+        | dev1::get(dev1::perf{}, "Logo");
 
     auto f = resource_2();
     auto k = f;
@@ -75,6 +79,21 @@ int main() {
     std::cout << std::to_string(c.use_count()) << std::endl;
     std::cout << std::to_string(f.use_count()) << std::endl;
     std::cout << std::to_string(cache.get_size()) << std::endl;
+
+    sf::Sprite sprite(*f);
+
+    while (window.isOpen())
+    {
+        while (const std::optional event = window.pollEvent())
+        {
+            if (event->is<sf::Event::Closed>())
+                window.close();
+        }
+
+        window.clear(sf::Color::Black);
+        window.draw(sprite);
+        window.display();
+    }
 
     return 0; 
 }

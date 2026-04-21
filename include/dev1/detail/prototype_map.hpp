@@ -15,7 +15,7 @@
 #define PROTOTYPE_MAP_HPP
 
 #include <rapidhash.h>
-#include <boost/unordered/unordered_node_map.hpp>
+#include <boost/unordered/unordered_flat_map.hpp>
 
 #include "type_erasure.hpp"
 
@@ -46,7 +46,7 @@ namespace dev1 {
     namespace detail {
         namespace unordered = boost::unordered;
 
-        class unordered_map : public unordered::unordered_node_map<
+        class unordered_map : public unordered::unordered_flat_map<
             std::string, 
             std::weak_ptr<concept_t>, 
             detail::ihash, 

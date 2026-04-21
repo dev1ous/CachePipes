@@ -11,10 +11,11 @@
 #define CONCEPT_HPP
 
 #include <filesystem>
-#include <string_view>
 
 #include <boost/hana/lazy.hpp>
 #include <boost/hana/functional/partial.hpp>
+
+#include "path_construct.hpp"
 
 namespace dev1 {
     namespace hana = boost::hana;
@@ -28,11 +29,11 @@ namespace dev1 {
                 (std::is_array_v<Container> && 
                 std::convertible_to<std::remove_extent_t<Container>, std::string_view>));
 
-            template<typename Traits, std::size_t N>
+            template<typename Traits, size_t N>
             concept ValidExtensions = requires {
                 { Traits::extensions() } -> StringViewContainer<N>;
             };
-
+            
             template<typename Traits, typename T>
             concept ValidLoader = requires(T& resource, std::filesystem::path const& filepath) {
                 { Traits::loader(resource, filepath) } -> std::same_as<bool>;
@@ -78,7 +79,7 @@ namespace dev1 {
 
             template<typename Handler, typename Resource>
             concept ValidResourceHandler = requires(Handler&& handler, Resource& resource, std::filesystem::path const& filepath) {
-                { std::invoke(std::forward<Handler>(handler), resource, filepath) };
+                { std::invoke(std::forward<Handler>(handler), resource, filepath) } -> std::same_as<bool>;
             } && (std::is_function_v<std::remove_pointer_t<std::remove_reference_t<Handler>>> ||
                 std::is_class_v<std::remove_reference_t<Handler>>);
         }

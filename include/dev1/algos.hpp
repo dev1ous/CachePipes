@@ -11,20 +11,6 @@
 #include "detail/solve_filepath.hpp"
 #include "detail/insert.hpp"
 
-namespace dev1 {
-    namespace detail {
-        template<typename T>
-        struct make_t {
-            template<typename ...Args>
-            [[nodiscard]] std::shared_ptr<model<T>> operator()(Args... args) const {
-                return std::make_shared<model<T>>(std::forward<Args>(args)...);
-            }
-        };
-    }
-    template<typename T>
-    inline constexpr detail::make_t<T> make{};
-}
-
 namespace dev1::detail {
     struct pipeline_tag {};
 
@@ -84,7 +70,7 @@ namespace dev1::detail {
 
         [[nodiscard]] constexpr decltype(auto) operator()() const
         {
-            using ReturnType = std::remove_reference_t<decltype((hana::eval(value)))>;
+            using ReturnType = std::remove_cvref_t<decltype((hana::eval(value)))>;
     
             static_assert(impl::IsSharedPtr<ReturnType>, 
                         "You use a tag full or perf in a non-finished pipeline");
@@ -129,7 +115,7 @@ namespace dev1::detail {
 
         [[nodiscard]] decltype(auto) operator()() const
         {
-            using ReturnType = std::remove_reference_t<decltype((hana::eval(value)))>;
+            using ReturnType = std::remove_cvref_t<decltype((hana::eval(value)))>;
     
             static_assert(impl::IsSharedPtr<ReturnType>, 
                         "You use a tag full or perf in a non-finished pipeline");

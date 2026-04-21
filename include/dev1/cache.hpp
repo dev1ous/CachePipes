@@ -8,6 +8,7 @@
 #include "detail/prototype_map.hpp"
 
 namespace dev1 {
+
     class Cache
     {
     public: 

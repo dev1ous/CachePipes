@@ -38,7 +38,7 @@ namespace dev1 {
                 using T = typename ExtractModelType<ReturnType>::type;
 
                 return hana::make_lazy([func = std::forward<Func>(func)] (auto& cacheRef) {
-                    return hana::make_tuple(func, cacheRef, hana::type_c<T>);
+                    return hana::make_tuple(func, cacheRef, std::type_identity<T>);
                 });
             }
         };

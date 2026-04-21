@@ -15,12 +15,12 @@
 #ifndef LOAD_RESOURCE_HPP
 #define LOAD_RESOURCE_HPP
 
-#include <swl/variant.hpp>
 #include <boost/hana/drop_back.hpp>
 
 #include "tags.hpp"
 #include "traits.hpp"
 #include "hana_utilities.hpp"
+#include "variant_utilities.hpp"
 
 namespace dev1 {
     namespace detail {
@@ -30,12 +30,12 @@ namespace dev1 {
 
         struct continuation_load_resource_t {
             template<typename GetVariant>
-            using load_resource_variant = swl::variant<
-                typename swl::variant_alternative_t<0, std::remove_cvref_t<GetVariant>>,
+            using load_resource_variant = std::variant<
+                typename std::variant_alternative_t<0, std::remove_cvref_t<GetVariant>>,
                 hana::tuple<
-                    typename std::tuple_element_t<0, typename swl::variant_alternative_t<1, std::remove_cvref_t<GetVariant>>>,
-                    typename std::tuple_element_t<1, typename swl::variant_alternative_t<1, std::remove_cvref_t<GetVariant>>>,
-                    typename std::tuple_element_t<2, typename swl::variant_alternative_t<1, std::remove_cvref_t<GetVariant>>>
+                    typename std::tuple_element_t<0, typename std::variant_alternative_t<1, std::remove_cvref_t<GetVariant>>>,
+                    typename std::tuple_element_t<1, typename std::variant_alternative_t<1, std::remove_cvref_t<GetVariant>>>,
+                    typename std::tuple_element_t<2, typename std::variant_alternative_t<1, std::remove_cvref_t<GetVariant>>>
                 >
             >;
 
@@ -89,9 +89,9 @@ namespace dev1 {
                 -> load_resource_variant<Variant>
             {
                 if (variant.index() == 0) {
-                    return swl::unsafe_get<0>(variant);
+                    return get_unbound<0>(variant);
                 }
-                auto const& tupleRef = swl::unsafe_get<1>(variant);
+                auto const& tupleRef = get_unbound<1>(variant);
                 return this->operator()(full{}, func, tupleRef);
             }
         };

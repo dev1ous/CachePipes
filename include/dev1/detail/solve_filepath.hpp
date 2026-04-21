@@ -15,12 +15,14 @@
 #ifndef SOLVE_FILEPATH_HPP
 #define SOLVE_FILEPATH_HPP
 
-#include <swl/variant.hpp>
 #include <boost/hana/append.hpp>
+#include <boost/hana/for_each.hpp>
 
 #include "tags.hpp"
 #include "traits.hpp"
+#include "path_construct.hpp"
 #include "hana_utilities.hpp"
+#include <variant_utilities.hpp>
 
 namespace dev1 {
     namespace detail {
@@ -28,13 +30,13 @@ namespace dev1 {
 
         struct solve_filepath_impl_t {
             template<typename GetVariant>
-            using solve_filepath_variant = swl::variant<
-                typename swl::variant_alternative_t<0, std::remove_cvref_t<GetVariant>>,
+            using solve_filepath_variant = std::variant<
+                typename std::variant_alternative_t<0, std::remove_cvref_t<GetVariant>>,
                 hana::tuple<
-                    typename std::tuple_element_t<0, typename swl::variant_alternative_t<1, std::remove_cvref_t<GetVariant>>>,
-                    typename std::tuple_element_t<1, typename swl::variant_alternative_t<1, std::remove_cvref_t<GetVariant>>>,
-                    typename std::tuple_element_t<2, typename swl::variant_alternative_t<1, std::remove_cvref_t<GetVariant>>>,
-                    typename std::tuple_element_t<3, typename swl::variant_alternative_t<1, std::remove_cvref_t<GetVariant>>>,
+                    typename std::tuple_element_t<0, typename std::variant_alternative_t<1, std::remove_cvref_t<GetVariant>>>,
+                    typename std::tuple_element_t<1, typename std::variant_alternative_t<1, std::remove_cvref_t<GetVariant>>>,
+                    typename std::tuple_element_t<2, typename std::variant_alternative_t<1, std::remove_cvref_t<GetVariant>>>,
+                    typename std::tuple_element_t<3, typename std::variant_alternative_t<1, std::remove_cvref_t<GetVariant>>>,
                     std::filesystem::path
                 >
             >;
@@ -47,26 +49,25 @@ namespace dev1 {
                 std::remove_cvref_t<decltype(hana::at_c<3>(std::declval<TupleRef>()))>,
                 std::filesystem::path
             >;
-
+                        
             template<typename T>
             [[nodiscard]] std::filesystem::path check_path(std::string_view base_file, std::string_view name) const {
                 static_assert(validator<T>::template is_valid_extensions<T>, 
-                    "You need to use a fixed size array of string_view as return type of your Resource traits specialization");
+                    "Error inside the extensions function of your Resource traits specialization. Your implementation is not the one expected. Refer to the documentation to correct it.");
 
                 if constexpr (validator<T>::template is_valid_extensions<T>) 
                 {
                     constexpr auto array = validator<T>::extensions();
-                    std::filesystem::path exec_dir = EXECUTABLE_DIR;
 
-                    for (auto const& entry : std::filesystem::recursive_directory_iterator(exec_dir / base_file))
+                    for (auto const& entry : std::filesystem::recursive_directory_iterator(base_file, std::filesystem::directory_options::skip_permission_denied))
                     {
                         std::filesystem::path const& path = entry.path();
 
-                        if (path.stem().string() == name)
+                        if (path.stem() == name)
                         {
                             for (size_t i = 0; i < array.size(); ++i)
                             {
-                                if (path.extension().string() == array[i])
+                                if (path.extension() == array[i])
                                 {
                                     return path;
                                 }
@@ -88,7 +89,7 @@ namespace dev1 {
 
                 if (filepath.empty()) {
                     std::string errorMessage = "Failed to find : ";
-                    errorMessage.append(name);
+                    errorMessage.append(name.to_string_view());
                     throw std::runtime_error(errorMessage);
                 }
                 return hana::append(tupleRef, std::move(filepath));
@@ -99,12 +100,13 @@ namespace dev1 {
                 -> solve_filepath_variant<Variant>
             {
                 if (variant.index() == 0) {
-                    return swl::unsafe_get<0>(variant);
+                    return get_unbound<0>(variant);
                 }
-                auto const& tupleRef = swl::unsafe_get<1>(variant);
+                auto const& tupleRef = get_unbound<1>(variant);
                 return this->operator()(full{}, basePath, tupleRef);
             }
         };
+
 
         struct solve_filepath_t {
             struct proxy {
